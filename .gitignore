@@ -31,6 +31,6 @@
 /dist/
 /nbdist/
 /.nb-gradle/
-
+1
 /**/tools-codegen/src/code/resources/mapper/*.xml
 /**/tools-codegen/src/code/java/com/xiaoyi/iot/**
