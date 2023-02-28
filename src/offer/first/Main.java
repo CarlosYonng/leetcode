@@ -1,32 +1,27 @@
 package offer.first;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println(exchange(new int[]{1,2,3,4}));
+        System.out.println(trap(new int[]{4,1,2,3}));
     }
 
-    public static int[] exchange(int[] nums) {
-        int[] a1 = new int[nums.length];
-        int[] a2 = new int[nums.length];
-        int j=0;
-        int k=0;
-        for(int i : nums) {
-            if(i%2 != 0){
-                a1[j] = i;
-                j++;
+    public static int trap(int[] height) {
+        int ans = 0;
+        int left = 0, right = height.length - 1;
+        int leftMax = 0, rightMax = 0;
+        while (left < right) {
+            leftMax = Math.max(leftMax, height[left]);
+            rightMax = Math.max(rightMax, height[right]);
+            if (height[left] < height[right]) {
+                ans += leftMax - height[left];
+                ++left;
             } else {
-                a2[k] = i;
-                k++;
+                ans += rightMax - height[right];
+                --right;
             }
         }
-        for(int i=0 ;i<a2.length;i++) {
-            a1[a1.length+i] = a2[i];
-        }
-        return a1;
+        return ans;
     }
 }
