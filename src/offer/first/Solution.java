@@ -2,6 +2,7 @@ package offer.first;
 
 
 import java.math.BigInteger;
+import java.util.*;
 
 
 class Solution {
@@ -123,6 +124,102 @@ class Solution {
 
 
     /**
+     * 15. 三数之和
+     * 解题思路：
+     * 先排序，排序后若相邻的两个数相同，那么只走一次计算逻辑，防止结果重复；
+     * 循环取一个值a然后就变成了->  a+ b+ c = 0  ->  b+c = -a,三数之和其实就是两数之和
+     * **/
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        int n = nums.length;
+        Arrays.sort(nums);
+        for(int first=0;first<n;first++) {
+            if(first > 0 && nums[first] == nums[first-1]) {
+                continue;
+            }
+            int third = n-1;
+            int target = -nums[first];
+            for(int second=first+1;second<n;second++) {
+                if(second>first+1 && nums[second] == nums[second-1]) {
+                    continue;
+                }
+                while(second < third && nums[second] + nums[third] > target) {
+                    --third;
+                }
+                if(second == third) {
+                    break;
+                }
+                if(nums[second] + nums[third] == target) {
+                    List<Integer> tt = new ArrayList<>();
+                    tt.add(nums[first]);
+                    tt.add(nums[second]);
+                    tt.add(nums[third]);
+                    res.add(tt);
+                }
+            }
+        }
+        return res;
+    }
+
+    /**
+     * 20. 有效的括号
+     * 解题思路：
+     * 栈，下一个元素如果是]}) 那上一个一定是对应得[{(，依次入栈，配对出栈最后看栈情况就可以
+     * **/
+    public boolean isValid(String s) {
+        int n = s.length();
+        if(n%2 != 0 || n == 0) {
+            return false;
+        }
+        Map<Character,Character>  map = new HashMap<>();
+        map.put(']','[');
+        map.put('}','{');
+        map.put(')','(');
+        Deque<Character> deque = new ArrayDeque<>();
+        for(int i=0;i<n;i++) {
+
+            Character cc = s.charAt(i);
+            if(map.containsKey(cc)) {
+                if(deque.isEmpty() || deque.peek() != map.get(cc)) {
+                    return false;
+                } else {
+                    deque.pop();
+                }
+            } else {
+                deque.push(cc);
+            }
+        }
+        return deque.isEmpty();
+    }
+
+
+    /**
+     * 28. 找出字符串中第一个匹配项的下标
+     * 解题思路：
+     * 从左向右匹配，第一个字符匹配成功就依次字符匹配，否则从下一个字符开始重新匹配第一个字符，直到第一次匹配字符串长度和匹配项相同
+     * **/
+    public int strStr(String haystack, String needle) {
+        int n = haystack.length();
+        int m = needle.length();
+        char[] hc = haystack.toCharArray();
+        char[] nc = needle.toCharArray();
+
+        for(int i=0;i<=n-m;i++) {
+            int a = i;
+            int b = 0;
+            while(b < m && hc[a] == nc[b]) {
+                a++;
+                b++;
+            }
+            if(b == m) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+    /**
      * 42. 接雨水
      * 解题思路：
      * 设置开始和结尾双向指针
@@ -235,6 +332,239 @@ class Solution {
             end++;
         }
         return len == Integer.MAX_VALUE ? 0 : len;
+    }
+
+
+
+
+    /**
+     * 394. 字符串解码
+     * 解题思路：
+     * 两个辅助栈
+     * stack_multi  用于存放系数
+     * stack_res    用于存放外部字符
+     * 一个变量
+     * res  存储内部字符
+     *
+     * 当有新的内部字符时，就将此时的内部字符转为外部字符存入栈中，
+     * 当发现第一个]时，就将当前的内部字符与系数栈顶的系数相乘做新的内部字符
+     *
+     * 我的解法： 一坨答辩（递归）
+     * public String decodeString(String s) {
+     *         if (!Pattern.matches(".*[A-Za-z]+.*", s)) {
+     *             return "";
+     *         }
+     *         return getString(s);
+     *     }
+     *
+     *     public String getString(String s) {
+     *         if (!s.contains("[")) {
+     *             return s;
+     *         }
+     *         char[] cc = s.toCharArray();
+     *         int begin = 0;
+     *         int end = 0;
+     *         int count = 0;
+     *         StringBuilder sb = new StringBuilder();
+     *         for(int i=0;i<cc.length;i++) {
+     *             if(cc[i] == '[') {
+     *                 begin = i;
+     *                 if(i>0) {
+     *                     StringBuilder ss = new StringBuilder();
+     *                     int k = i;
+     *                     while (k>0 && Character.isDigit(cc[k-1])) {
+     *                         ss.append(cc[k-1]);
+     *                         k--;
+     *                     }
+     *                     ss.reverse();
+     *                     count =Integer.parseInt(ss+"");
+     *                 }
+     *                 continue;
+     *             }
+     *             if(end == 0 && cc[i] == ']') {
+     *                 end = i;
+     *                 break;
+     *             }
+     *         }
+     *         for(int i=0;i<count;i++) {
+     *             sb = sb.append(s.substring(begin+1,end));
+     *         }
+     *         if (s.contains("[")) {
+     *             int ccc = count;
+     *             int aa = 0;
+     *             while (ccc > 0) {
+     *                 aa++;
+     *                 ccc /= 10;
+     *             }
+     *             s = s.substring(0,begin-aa) + sb + s.substring(end+1,s.length());
+     *
+     *         }
+     *         return getString(s);
+     *     }
+     *
+     *
+     * **/
+    public static String decodeString(String s) {
+        StringBuilder res = new StringBuilder();
+        int multi = 0;
+        LinkedList<Integer> stack_multi = new LinkedList<>();
+        LinkedList<String> stack_res = new LinkedList<>();
+        for(Character c : s.toCharArray()) {
+            if(c == '[') {
+                stack_multi.addLast(multi);
+                stack_res.addLast(res.toString());
+                multi = 0;
+                res = new StringBuilder();
+            }
+            else if(c == ']') {
+                StringBuilder tmp = new StringBuilder();
+                int cur_multi = stack_multi.removeLast();
+                for(int i = 0; i < cur_multi; i++) tmp.append(res);
+                res = new StringBuilder(stack_res.removeLast() + tmp);
+            }
+            else if(c >= '0' && c <= '9') multi = multi * 10 + Integer.parseInt(c + "");
+            else res.append(c);
+        }
+        return res.toString();
+    }
+
+
+    /**
+     * 406. 根据身高重建队列
+     * 解题思路：
+     * 排n个坑然后按顺序往坑里填值，从左往右填，相同位置按顺序排序后如果坑重复了，那先入坑的后移（因为事先做了排序所以可以后移）
+     * Arrays.sort(people, new Comparator<int[]>() {
+     *             public int compare(int[] person1, int[] person2) {
+     *                 if (person1[0] != person2[0]) {
+     *                 如果第一位不相等要按身高降序排序，这样在arrayList里按index插入的时候才保证小的高位在前，不会影响次位index的数量
+     *                     return person2[0] - person1[0];
+     *                 } else {
+     *                 首位相等次位递增是因为  如果大数相同那次位一定使比首位更大的因为
+     *                     return person1[1] - person2[1];
+     *                 }
+     *             }
+     *         });
+     * **/
+    public int[][] reconstructQueue(int[][] people) {
+        Arrays.sort(people, new Comparator<int[]>() {
+            public int compare(int[] person1, int[] person2) {
+                if (person1[0] != person2[0]) {
+                    return person2[0] - person1[0];
+                } else {
+                    return person1[1] - person2[1];
+                }
+            }
+        });
+        List<int[]> ans = new ArrayList<int[]>();
+        for (int[] person : people) {
+            ans.add(person[1], person);
+        }
+        return ans.toArray(new int[ans.size()][]);
+    }
+
+    /**
+     * 556. 下一个更大元素 III
+     * 解题思路：
+     * 该题就是从右向左找第一个 顺序的 i < i+1 那此时将这个第i个数和从右向左第一个比这第i个数大的数和这第i个数交换位置即得到下一个更大元素的最小高位值变动值，
+     * 再将后面的进行从小到大排序即可
+     *  例如：2535421的 下一个更大元素就是找到  从右向左数第一个i < i+1 就是 3<5  那就将3换为从右向左的第一个比3大的数为：2545321，
+     *  此时下一个更大元素的最小高位值变动值 就由  3->4，然后因为从右向左的数都是降序的，找最小值 进行升序排序就好：
+     *  即： 25 35 421   第一次 i<i+1  为   3<5
+     *      -> 25 4 5321    交换 3和第一次比3大的数   为  3 和 4交换
+     *      ->25 4  1235    进行尾串 升序排序取下一个更大元素的最小值
+     * **/
+    public int nextGreaterElement(int n) {
+        char[] nums = Integer.toString(n).toCharArray();
+        int i = nums.length - 2;
+        //循环结束后i的值为第一次从右数i<i+1的下标
+        while (i >= 0 && nums[i] >= nums[i + 1]) {
+            i--;
+        }
+        if (i < 0) {
+            return -1;
+        }
+
+        int j = nums.length - 1;
+        //循环结束后j的值为第一次从右数i<j的下标
+        while (j >= 0 && nums[i] >= nums[j]) {
+            j--;
+        }
+        swap(nums, i, j);
+
+        //因为尾串时降序排序 所以首位依次换位置就可以变为升序排序
+        reverse(nums, i + 1);
+        long ans = Long.parseLong(new String(nums));
+        //排序后最大值不能超过int范围
+        return ans > Integer.MAX_VALUE ? -1 : (int) ans;
+    }
+    public void reverse(char[] nums, int begin) {
+        int i = begin, j = nums.length - 1;
+        while (i < j) {
+            swap(nums, i, j);
+            i++;
+            j--;
+        }
+    }
+    public void swap(char[] nums, int i, int j) {
+        char temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+
+
+    /**
+     * 646. 最长数对链
+     * 解题思路：
+     *  要挑选最长数对链的第一个数对时，最优的选择是挑选第二个数字最小的，
+     *  这样能给挑选后续的数对留下更多的空间。
+     *  挑完第一个数对后，要挑第二个数对时，也是按照相同的思路，
+     *
+     * **/
+    public int findLongestChain(int[][] pairs) {
+        int curr = Integer.MIN_VALUE;
+        int res = 0;
+        Arrays.sort(pairs, (a,b) -> a[1] - b[1]);
+        for(int[] i:pairs) {
+            if(curr < i[0]) {
+                curr = i[1];
+                res++;
+            }
+        }
+        return res;
+    }
+
+    /**
+     * 720. 词典中最长的单词
+     * 字符串：
+     *  Arrays.sort(words, (a, b) ->  {
+     *             if (a.length() != b.length()) {
+     *                 return a.length() - b.length();  表示短的字符串排序在前
+     *             } else {
+     *                 return b.compareTo(a);       表示降序排序（为了最后得到字典序升序的字符串）
+     *             }
+     *
+     * 先在set里放入""，是为了在集合放入第一个字母
+     * **/
+    public static String longestWord(String[] words) {
+        Arrays.sort(words, (a, b) ->  {
+            if (a.length() != b.length()) {
+                return a.length() - b.length();
+            } else {
+                return b.compareTo(a);
+            }
+        });
+        String longest = "";
+        Set<String> candidates = new HashSet<String>();
+        candidates.add("");
+        int n = words.length;
+        for (int i = 0; i < n; i++) {
+            String word = words[i];
+            if (candidates.contains(word.substring(0, word.length() - 1))) {
+                candidates.add(word);
+                longest = word;
+            }
+        }
+        return longest;
     }
 
     /**
