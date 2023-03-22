@@ -100,6 +100,30 @@ class Solution {
     }
 
     /**
+     * 9. 回文数
+     * 解题思路：
+     * 设置开始和结尾双向指针
+     *
+     * **/
+    public boolean isPalindrome(int x) {
+        if(x < 0) {
+            return false;
+        }
+        int left = 0;
+        char[] cc = (x+"").toCharArray();
+        int right = cc.length-1;
+        while(left < right) {
+            if(cc[left] != cc[right]) {
+                return false;
+            } else {
+                left++;
+                right--;
+            }
+        }
+        return true;
+    }
+
+    /**
      * 11. 盛最多水的容器
      * 解题思路：
      * 设置开始和结尾双向指针
@@ -120,6 +144,35 @@ class Solution {
             }
         }
         return total;
+    }
+
+
+    /**
+     * 14. 最长公共前缀
+     * 解题思路：
+     * 先取第一个字符串然后循环匹配后面的每一个，取匹配中的最短长度
+     * 如果只有一个字符串那返回它本身
+     *
+     * **/
+    public String longestCommonPrefix(String[] strs) {
+        int n = 0;
+        String s = strs[0];
+        if(strs.length == 1) {
+            return s;
+        }
+        int max = Integer.MAX_VALUE;
+        for(int i=1;i<strs.length;i++) {
+            int tmp = 0;
+            for(int j=0;j<s.length();j++) {
+                if(strs[i].length() > j && strs[i].charAt(j) == s.charAt(j)) {
+                    tmp++;
+                } else {
+                    break;
+                }
+            }
+            max = Math.min(max,tmp);
+        }
+        return max == Integer.MAX_VALUE ? "" :s.substring(0,max);
     }
 
 
@@ -192,6 +245,66 @@ class Solution {
         return deque.isEmpty();
     }
 
+
+
+    /**
+     * 21. 合并两个有序链表
+     * 解题思路：
+     *
+     * res为新链表  头为-1  所以返回res.next
+     * pre为这个链表追加元素用的指针
+     *
+     * **/
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        ListNode res = new ListNode(-1);
+        ListNode pre = res;
+        while(list1 != null && list2 != null) {
+            if(list1.val <= list2.val) {
+                pre.next = list1;
+                list1 = list1.next;
+            } else{
+                pre.next = list2;
+                list2 = list2.next;
+            }
+            pre = pre.next;
+        }
+        pre.next = list1 == null ? list2 : list1;
+        return res.next;
+    }
+
+    /**
+     * 26. 删除有序数组中的重复项
+     * 解题思路：
+     * **/
+    public int removeDuplicates(int[] nums) {
+        List<Integer> ss = new ArrayList<>();
+        int i=0;
+        for(int n:nums) {
+            if(ss.contains(n)) {
+                continue;
+            }
+            ss.add(n);
+            nums[i] = n;
+            i++;
+        }
+        return ss.size();
+    }
+
+    /**
+     * 26. 删除有序数组中的重复项
+     * 解题思路：
+     * 从头重置元素位置值 的指针 为 left，如果该位置命中target，那left不动看下一个位置
+     * **/
+    public int removeElement(int[] nums, int val) {
+        int left = 0;
+        for(int i=0;i<nums.length;i++) {
+            if(nums[i] != val) {
+                nums[left] = nums[i];
+                left++;
+            }
+        }
+        return left;
+    }
 
     /**
      * 28. 找出字符串中第一个匹配项的下标
@@ -272,6 +385,214 @@ class Solution {
         return ans;
     }
 
+
+    /**
+     * 45. 跳跃游戏 II
+     * 解题思路：
+     * 贪心
+     *
+     * 从当前点进行一次跳跃，然后将end的边界拉到本次跳跃最远的边界，遍历这个区间内第二次跳跃能到达的最远点，
+     * 当这个区间遍历结束后，更新最远点，将end拉到这个最远点。跳跃次数+1。
+     * 最后一个点不用跳，直接到达就行
+     * 所以遍历到n - 1就行
+     *
+     * **/
+    public static int jump(int[] nums) {
+        int length = nums.length;
+        int end = 0;
+        int maxPosition = 0;
+        int steps = 0;
+        for (int i = 0; i < length - 1; i++) {
+            maxPosition = Math.max(maxPosition, i + nums[i]);
+            if (i == end) {
+                end = maxPosition;
+                steps++;
+            }
+        }
+        return steps;
+    }
+
+    /**
+     * 53. 最大子数组和
+     * 解题思路：
+     * 属于动态规划
+     * 我们用 f(i) 代表以第 i 个数结尾的「连续子数组的最大和」
+     *
+     * maxAns 表示过去的 f(x) 中的最大值 , maxAns存储的是当有一个f(i)大于上次存储的f(i)   那最大值就是这次的f(i)
+     * f(i)=max{f(i−1)+nums[i],nums[i]}
+     * 上一个位置的最大值加这个位置 和这个位置比 哪个大  返回哪个
+     * 上一个位置的值其实就是上一个位置之前的子序列和的最大值
+     *
+     * **/
+    public int maxSubArray(int[] nums) {
+        int pre = 0, maxAns = nums[0];
+        for (int x : nums) {
+            pre = Math.max(pre + x, x);
+            maxAns = Math.max(maxAns, pre);
+        }
+        return maxAns;
+    }
+
+
+    /**
+     * 55. 跳跃游戏
+     * 解题思路：
+     * 贪心
+     *
+     * next下一次可跳跃覆盖范围
+     * cur当前跳跃可覆盖范围
+     * 如果遍历完了之后最大的可覆盖范围大于等于数组最大下标就说明覆盖范围包括最大值可以跳过
+     *
+     * **/
+    public boolean canJump(int[] nums) {
+        int n = nums.length;
+        int next = 0;
+        int cur = 0;
+        for(int i=0;i<n;i++) {
+            next = Math.max(next,i+nums[i]);
+            if(i == cur) {
+                cur = next;
+            }
+        }
+        //如果遍历完了之后最大的可覆盖范围大于等于数组最大下标就说明覆盖范围包括最大值可以跳过
+        if(cur >= n-1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+    /**
+     * 58. 最后一个单词的长度
+     * 解题思路：
+     * **/
+    public int lengthOfLastWord(String s) {
+        String[] ss = s.split(" ");
+        return ss[ss.length-1].length();
+    }
+
+
+
+    /**
+     * 66. 加一
+     * 解题思路：
+     *
+     * 如果最后一位是9就向前找找到第一个不是9的 +1，然后将该位置后面的都改为0
+     * 如果找不到第一个不是9的数就说明都是9，那就新建一个n+1的数组首位是1 其他是0
+     *
+     * **/
+    public int[] plusOne(int[] digits) {
+        int n = digits.length;
+        for (int i = n - 1; i >= 0; --i) {
+            if (digits[i] != 9) {
+                ++digits[i];
+                for (int j = i + 1; j < n; ++j) {
+                    digits[j] = 0;
+                }
+                return digits;
+            }
+        }
+
+        // digits 中所有的元素均为 9
+        int[] ans = new int[n + 1];
+        ans[0] = 1;
+        return ans;
+    }
+
+
+    /**
+     * 67. 二进制求和
+     * 解题思路：
+     *从最后一位往前加，sum为每一位相加+进位值 看他%2 返回这个值就是这个位置剩下的值
+     * ca 为是否进位，如果最后结束循环还有进位   就补位1
+     *
+     * **/
+    public String addBinary(String a, String b) {
+        StringBuilder ans = new StringBuilder();
+        int ca = 0;
+        for(int i = a.length() - 1, j = b.length() - 1;i >= 0 || j >= 0; i--, j--) {
+            int sum = ca;
+            sum += i >= 0 ? a.charAt(i) - '0' : 0;
+            sum += j >= 0 ? b.charAt(j) - '0' : 0;
+            ans.append(sum % 2);
+            ca = sum / 2;
+        }
+        ans.append(ca == 1 ? ca : "");
+        return ans.reverse().toString();
+    }
+
+    /**
+     * 71. 简化路径
+     * 解题思路：
+     * 栈
+     *
+     * **/
+    public String simplifyPath(String path) {
+        Deque<String> deque = new ArrayDeque<String>();
+        String[] ss = path.split("/");
+        for(String s : ss) {
+            if(s.equals("..")) {
+                if(!deque.isEmpty()) {
+                    deque.removeLast();
+                } else {
+                    continue;
+                }
+            } else if(s.equals("") ||s.equals(".")) {
+                continue;
+            } else {
+                deque.add(s);
+            }
+        }
+        StringBuilder sb = new StringBuilder("/");
+        for(String s : deque) {
+            sb.append(s);
+            deque.removeFirst();
+            if(deque .size() != 0) {
+                sb.append("/");
+            }
+        }
+        return sb.toString();
+    }
+
+
+
+    /**
+     * 81. 搜索旋转排序数组 II
+     * 解题思路：
+     * 和33题类似，但要考虑如果中值和左右边界值相同，不知道该去左右范围哪个去找，所以如果相同的话进行 掐头去尾
+     *
+     * **/
+    public boolean search2(int[] nums, int target) {
+        int left = 0;
+        int right = nums.length-1;
+        boolean res = false;
+        while(left <= right) {
+            int mid = (left + right) / 2;
+            if(nums[mid] == target) {
+                res = true;
+                break;
+            }
+            if(nums[left] == nums[mid] && nums[right] == nums[mid]) {
+                left++;
+                right--;
+            } else if(nums[left] <= nums[mid]) {
+                if(nums[left] <= target && target < nums[mid]) {
+                    right = mid - 1;
+                } else {
+                    left = mid + 1;
+                }
+            } else {
+                if(target > nums[mid] && target <= nums[right]) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+        }
+        return res;
+    }
+
     /**
      * 88. 合并两个有序数组
      * 解题思路：
@@ -303,6 +624,29 @@ class Solution {
         if(p2<n){
             System.arraycopy(nums2,p2,nums1,p2+p1,n-p2);
         }
+    }
+
+    /**
+     * 153. 寻找旋转排序数组中的最小值
+     *
+     * 解题思路：
+     * 二分查找，一定要注意，因为是部分单调递增，找最小值，所以要优先对比右边界（因为左边总是有比右边界更小的值），右边界更大的话向左先缩，
+     *
+     *
+     * **/
+    public int findMin(int[] nums) {
+        int left = 0;
+        int right = nums.length-1;
+        int mid = 0;
+        while(left < right) {
+            mid = (left + right) / 2;
+            if(nums[mid] < nums[right]) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return nums[left];
     }
 
     /**
@@ -462,6 +806,46 @@ class Solution {
         return ans.toArray(new int[ans.size()][]);
     }
 
+
+
+    /**
+     * 547. 省份数量
+     * 解题思路：
+     *
+     * isConnected = [[1,1,0],[1,1,0],[0,0,1]]  写作二维数组
+     *
+     *  1   1   0
+     *  1   1   0
+     *  0   0   1
+     *
+     *  一定是一个无向图因为  i和j相连  -> j和i也相连  ，所以一定是对称的二维数组
+     *  找第i个城市，然后如果有j和i相连，那就从j开始找和j相连的，广度优先搜索到底，然后就是一条线路   省份+1
+     *
+     * **/
+    private int n;
+    public int findCircleNum(int[][] isConnected) {
+        n = isConnected.length;
+        boolean[] visited = new boolean[n];
+        int provinces = 0;
+        for(int i=0;i<n;i++) {
+            if(!visited[i]) {
+                dfs(isConnected, i, visited);
+                provinces++;
+            }
+        }
+        return provinces;
+    }
+    public void dfs(int[][] isConnected, int i, boolean[] visited) {
+        visited[i] = true;
+        for(int j=0;j<n;j++) {
+            if(isConnected[i][j] == 1 && !visited[j]) {
+                dfs(isConnected,j,visited);
+            }
+        }
+    }
+
+
+
     /**
      * 556. 下一个更大元素 III
      * 解题思路：
@@ -534,6 +918,27 @@ class Solution {
     }
 
     /**
+     * 704. 二分查找
+     * 解题思路：
+     * 注意对比完中值后左右要进行缩进 不然永远跳不出while循环
+     *
+     * **/
+    public int search(int[] nums, int target) {
+        int left = 0;
+        int right = nums.length-1;
+        while(left <= right) {
+            if(nums[(right+left)/2] > target) {
+                right = (right+left)/2-1;
+            } else if (nums[(right+left)/2] < target) {
+                left = (right+left)/2+1;
+            } else {
+                return (right+left)/2;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * 720. 词典中最长的单词
      * 字符串：
      *  Arrays.sort(words, (a, b) ->  {
@@ -565,6 +970,51 @@ class Solution {
             }
         }
         return longest;
+    }
+
+
+
+    /**
+     * 733. 图像渲染
+     * 解题思路：
+     *  我们从给定的起点开始，进行深度优先搜索。
+     *
+     *  每次搜索到一个方格时，如果其与初始位置的方格颜色相同，就将该方格的颜色更新，以防止重复搜索；如果不相同，则进行回溯。
+     * **/
+    int[] dx = new int[]{0,0,1,-1};
+    int[] dy = new int[]{1,-1,0,0};
+    public int[][] floodFill(int[][] image, int sr, int sc, int color) {
+        int currColor = image[sr][sc];
+        if(currColor != color) {
+            dfs(image, sr, sc, currColor, color);
+        }
+        return image;
+    }
+    public void dfs (int[][] image, int x, int y, int currColor, int color) {
+        if(image[x][y] == currColor) {
+            image[x][y] = color;
+            for(int i=0;i<4;i++) {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if(nx >=0 && ny>=0 && nx < image.length && ny < image[0].length) {
+                    dfs(image, nx, ny, currColor, color);
+                }
+            }
+        }
+    }
+
+    /**
+     * 2057. 值相等的最小索引
+     * **/
+    public int smallestEqual(int[] nums) {
+        int n = -1;
+        for(int i=0;i<nums.length;i++) {
+            if(i%10 == nums[i]) {
+                n = i;
+                break;
+            }
+        }
+        return n;
     }
 
     /**
